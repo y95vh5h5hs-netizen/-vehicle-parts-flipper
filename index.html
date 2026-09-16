@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Vehicle Parts Flipper — V1</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--good:#047857;--warn:#b45309;--bad:#b91c1c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:#111827;color:#fff;padding:18px 16px;position:sticky;top:0;z-index:10}header h1{font-size:20px;margin:0 0 4px}header p{margin:0;color:#cbd5e1;font-size:13px}
+main{max-width:980px;margin:auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px #00000008}
+h2{font-size:17px;margin:0 0 12px}h3{font-size:15px;margin:16px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px}input,select,button,textarea{font:inherit}input,select,textarea{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:9px;background:#fff;color:var(--ink)}
+button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#e5e7eb;color:#111827}.danger{background:#fee2e2;color:#991b1b}.link{background:#eef2ff;color:#3730a3}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.between{display:flex;justify-content:space-between;gap:10px;align-items:center}.muted{color:var(--muted);font-size:13px}.small{font-size:12px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f9fafb;border:1px solid var(--line);border-radius:10px;padding:10px}.stat b{display:block;font-size:18px;margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);vertical-align:top}th{color:#4b5563;font-size:11px;text-transform:uppercase}
+.profit{font-weight:800;color:var(--good)}.negative{color:var(--bad)}.warning{color:var(--warn)}
+.hidden{display:none}.note{background:#fffbeb;border:1px solid #fde68a;padding:10px;border-radius:10px;font-size:13px}.info{background:#eff6ff;border:1px solid #bfdbfe;padding:10px;border-radius:10px;font-size:13px}
+footer{max-width:980px;margin:auto;padding:10px 14px 40px;color:var(--muted);font-size:11px}
+@media(max-width:650px){.grid,.grid3{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}table{font-size:12px}.hide-mobile{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🚗 Vehicle Parts Flipper</h1>
+  <p>Version 1 • Free eBay Product Research workflow + profit calculator</p>
+<div class="row" style="margin-top:10px">
+    <button class="secondary" onclick="window.open('https://carolinapicknpull.com/price-list/','_blank')">Carolina Price List</button>
+    <button class="secondary" onclick="window.open('https://www.ebay.com/sh/research','_blank')">eBay Product Research</button>
+  </div>
+</header>
+
+<main>
+<section class="card">
+  <div class="between"><h2>1. Vehicle</h2><span class="pill">Saved locally</span></div>
+  <div class="grid3">
+    <div><label>Year</label><input id="year" inputmode="numeric" placeholder="1979"></div>
+    <div><label>Make</label><input id="make" placeholder="Ford"></div>
+    <div><label>Model</label><input id="model" placeholder="F-150"></div>
+    <div><label>Trim / Edition</label><input id="trim" placeholder="Ranger XLT"></div>
+    <div><label>Engine</label><input id="engine" placeholder="351M V8"></div>
+    <div><label>Body / Drive</label><input id="body" placeholder="Regular Cab • 4WD"></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button class="primary" onclick="saveVehicle()">Save vehicle</button>
+    <button class="secondary" onclick="clearVehicle()">Clear</button>
+  </div>
+</section>
+
+<section class="card">
+  <div class="between">
+    <h2>2. Candidate parts</h2>
+    <button class="secondary" onclick="addPart()">+ Add part</button>
+  </div>
+  <p class="muted">V1 uses your yard price list as the acquisition database. Vehicle-specific interchange is intentionally left for a later version; use the part name and the eBay Product Research filters to verify fit.</p>
+  <div class="grid">
+    <div><label>Search parts</label><input id="partSearch" oninput="renderParts()" placeholder="grille, alternator, cluster..."></div>
+    <div><label>Minimum estimated profit</label><input id="minProfit" type="number" value="0" oninput="renderParts()"></div>
+  </div>
+  <div id="partsTable" style="margin-top:12px"></div>
+</section>
+
+<section class="card">
+  <div class="between"><h2>3. Part analysis</h2><span id="selectedLabel" class="pill">Select a part</span></div>
+  <div id="analysisEmpty" class="info">Tap <b>Analyze</b> on a part above. The app will build your eBay Product Research search and calculate profit from the numbers you enter.</div>
+  <div id="analysis" class="hidden"></div>
+</section>
+
+<section class="card">
+  <h2>4. Profit settings</h2>
+  <div class="grid3">
+    <div><label>eBay fee %</label><input id="feePct" type="number" step="0.1" value="15" oninput="recalc()"></div>
+    <div><label>Packaging cost</label><input id="packaging" type="number" step="0.01" value="3" oninput="recalc()"></div>
+    <div><label>Desired profit</label><input id="desiredProfit" type="number" step="0.01" value="30" oninput="recalc()"></div>
+    <div><label>Default shipping paid by you</label><input id="shippingDefault" type="number" step="0.01" value="15" oninput="recalc()"></div>
+    <div><label>Profit price basis</label><select id="priceBasis" onchange="recalc()"><option value="median">Median sold price</option><option value="average">Average sold price</option><option value="custom">Custom expected sale</option></select></div>
+    <div><label>Shipping treatment</label><select id="shippingMode" onchange="recalc()"><option value="seller">I pay shipping</option><option value="buyer">Buyer pays shipping</option></select></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>How V1 uses eBay Product Research</h2>
+  <ol class="small">
+    <li>Tap <b>Research on eBay</b> for a part.</li>
+    <li>In eBay Product Research, set the date range to the <b>last 30 days</b> and use Used/Pre-owned plus the most relevant automotive category/item specifics.</li>
+    <li>Enter the resulting <b>sold count, average sold price, sold-price range, and average shipping</b> below.</li>
+    <li>V1 calculates estimated net profit, ROI, and your maximum yard purchase price.</li>
+  </ol>
+  <div class="note">eBay says Product Research is free to sellers and provides up to three years of sales data, including actual sold prices, average price, sold-price range, average shipping, and sell-through rate for eligible searches. Access can depend on your Seller Hub/eBay account status.</div>
+</section>
+</main>
+<footer>
+  V1 is a personal research calculator. eBay figures are entered from eBay Product Research; this app does not scrape or bypass eBay access controls. Carolina Pick-N-Pull prices should be refreshed against the current official price list before buying.
+</footer>
+
+<script>
+const PRICE_DATA = [
+["A/C BLEND DOOR ACTUATOR",15.99,0],["A/C CLUTCH",19.99,.99],["A/C COMPRESSOR",49.99,9.99],
+["A/C CONDENSER W/DRIER",42.99,7.99],["A/C DRIER",14.99,2.99],["A/C EVAPORATOR",25.99,5.99],
+["A/C EXPANSION VALVE",11.99,0],["A/C HEATER CONTROL PANEL (DIGITAL OR ELECTRIC)",24.99,1],
+["AIR CLEANER",10.50,0],["AIR COMPRESSOR (AIR SUSPENSION)",39.99,2.99],["ALTERNATOR",39.99,10.99],
+["ALTERNATOR W/DUAL PULLEY",44.99,10.99],["ANTENNA (POWER)",22.99,2.99],["ANTENNA (SCREW ON)",2.99,0],
+["ARM REST",7.99,0],["ASHTRAY",3.99,0],["AUXILIARY WATER PUMP",19.99,0],
+["AXLE ACTUATOR",29.99,0],["AXLE ASSEMBLY CAR (BARE)",99.99,19.99],
+["AXLE ASSEMBLY CAR (DRUM TO DRUM)",129.99,24.99],
+["AXLE ASSEMBLY REAR END DISC BRAKE TYPE (COMPLETE)",179.99,34.99],
+["AXLE ASSEMBLY TRUCK, VAN, SUV (BARE)",199,34.99],
+["AXLE ASSEMBLY TRUCK, VAN, SUV (DRUM TO DRUM)",249.99,34.99],
+["AXLE BEAM ASSEMBLY (BARE)",79.99,14.99],["AXLE BEAM ASSEMBLY (DRUM TO DRUM)",89.99,14.99],
+["AXLE CARRIER ASSEMBLY",79.99,9.99],["AXLE CV TYPE",32.99,5.99],
+["AXLE CV TYPE W/INTERMEDIATE SHAFT",42.99,5.99],["AXLE CV W/SPINDLE",54.99,6.99],
+["AXLE CV W/SPINDLE/HUB",67.99,6.99],["AXLE CV W/SPINDLE/HUB/ROTOR",77.99,7.99],
+["AXLE CV W/SPINDLE/HUB/ROTOT/CALIPER",84.99,9.99],["AXLE HOUSING (BARE)",69.99,9.99],
+["AXLE INTERMEDIATE SHAFT",15.99,1.99],["AXLE LIMITED-SLIP DIFFERENTIAL W/RING GEAR",119.99,9.99],
+["AXLE REAR END COVER",11.99,0],["AXLE REAR END PINION GEAR",47.99,3.99],
+["AXLE REAR END RING GEAR",44.99,4.99],["AXLE REAR END SPIDER GEAR (EACH)",19.99,3.99],
+["AXLE REAR MAIN SEAL COVER",19.99,1.99]
+].map(x=>({name:x[0],price:x[1],core:x[2]}));
+
+let selected=null;
+let customParts=JSON.parse(localStorage.getItem("vpf_custom_parts")||"[]");
+let vehicle=JSON.parse(localStorage.getItem("vpf_vehicle")||"{}");
+Object.entries(vehicle).forEach(([k,v])=>{let e=document.getElementById(k);if(e)e.value=v});
+
+function money(n){return "$"+Number(n||0).toFixed(2)}
+function saveVehicle(){
+  ["year","make","model","trim","engine","body"].forEach(k=>vehicle[k]=document.getElementById(k).value.trim());
+  localStorage.setItem("vpf_vehicle",JSON.stringify(vehicle)); alert("Vehicle saved.");
+}
+function clearVehicle(){localStorage.removeItem("vpf_vehicle"); location.reload()}
+function allParts(){return [...PRICE_DATA,...customParts]}
+function renderParts(){
+  const q=document.getElementById("partSearch").value.toLowerCase(), min=Number(document.getElementById("minProfit").value||0);
+  const arr=allParts().filter(p=>p.name.toLowerCase().includes(q));
+  let rows=arr.map((p,i)=>`<tr><td><b>${esc(p.name)}</b></td><td>${money(p.price)}</td><td>${money(p.core)}</td><td><button class="link" onclick='analyze(${JSON.stringify(p)})'>Analyze</button></td></tr>`).join("");
+  document.getElementById("partsTable").innerHTML=`<table><thead><tr><th>Part</th><th>Yard</th><th>Core</th><th></th></tr></thead><tbody>${rows||"<tr><td colspan=4>No matching parts. Add one manually.</td></tr>"}</tbody></table>`;
+}
+function addPart(){
+  const name=prompt("Part name (use Carolina Pick-N-Pull wording if possible):"); if(!name)return;
+  const price=Number(prompt("Carolina Pick-N-Pull part price:","0")); if(!isFinite(price))return;
+  const core=Number(prompt("Core charge (0 if none):","0")); if(!isFinite(core))return;
+  customParts.push({name,price,core}); localStorage.setItem("vpf_custom_parts",JSON.stringify(customParts)); renderParts();
+}
+function ebayQuery(part){
+  const v=[vehicle.year,vehicle.make,vehicle.model,vehicle.trim,part.name].filter(Boolean).join(" ");
+  return v;
+}
+function analyze(p){
+  selected=p; document.getElementById("selectedLabel").textContent=p.name;
+  document.getElementById("analysisEmpty").classList.add("hidden"); document.getElementById("analysis").classList.remove("hidden");
+  const q=encodeURIComponent(ebayQuery(p));
+  document.getElementById("analysis").innerHTML=`
+  <div class="grid">
+    <div><h3>Carolina Pick-N-Pull</h3><div class="stats">
+      <div class="stat">Part price<b>${money(p.price)}</b></div>
+      <div class="stat">Core<b>${money(p.core)}</b></div>
+      <div class="stat">Cash paid<b>${money(p.price+p.core)}</b></div>
+      <div class="stat">Effective cost<b>${money(p.price)}</b></div>
+    </div></div>
+    <div><h3>eBay Product Research</h3>
+      <p class="muted">Suggested query:</p><input id="ebayQ" value="${esc(ebayQuery(p))}">
+      <div class="row" style="margin-top:8px"><button class="primary" onclick="openEbay('${q}')">Research on eBay</button><button class="secondary" onclick="copyQuery()">Copy query</button></div>
+    </div>
+  </div>
+  <h3>Enter the last-30-day Product Research results</h3>
+  <div class="grid3">
+    <div><label>Items sold</label><input id="soldCount" type="number" value="0" oninput="recalc()"></div>
+    <div><label>Average sold price</label><input id="avgSale" type="number" step="0.01" value="0" oninput="recalc()"></div>
+    <div><label>Median sold price</label><input id="medianSale" type="number" step="0.01" value="0" oninput="recalc()"></div>
+    <div><label>Lowest sold price</label><input id="lowSale" type="number" step="0.01" value="0" oninput="recalc()"></div>
+    <div><label>Highest sold price</label><input id="highSale" type="number" step="0.01" value="0" oninput="recalc()"></div>
+    <div><label>Average shipping</label><input id="avgShip" type="number" step="0.01" value="0" oninput="recalc()"></div>
+    <div><label>Custom expected sale</label><input id="customSale" type="number" step="0.01" value="0" oninput="recalc()"></div>
+  </div>
+  <h3>Profit estimate</h3><div id="calc"></div>
+  <div class="row" style="margin-top:10px"><button class="secondary" onclick="saveResearch()">Save research snapshot</button></div>
+  `;
+  recalc();
+}
+function recalc(){
+  if(!selected || !document.getElementById("soldCount")) return;
+  const fee=Number(document.getElementById("feePct").value||0)/100, pack=Number(document.getElementById("packaging").value||0);
+  const desired=Number(document.getElementById("desiredProfit").value||0), shipDefault=Number(document.getElementById("shippingDefault").value||0);
+  const mode=document.getElementById("shippingMode").value, basis=document.getElementById("priceBasis").value;
+  const avg=Number(document.getElementById("avgSale").value||0), med=Number(document.getElementById("medianSale").value||0), custom=Number(document.getElementById("customSale").value||0);
+  const sale=basis==="average"?avg:(basis==="custom"?custom:med);
+  const avgShip=Number(document.getElementById("avgShip").value||0);
+  const ship=mode==="buyer"?0:(avgShip||shipDefault);
+  const fees=sale*fee, profit=sale-fees-ship-pack-selectedCost();
+  const roi=selected.price?profit/selected.price*100:0;
+  const maxBuy=sale-fees-ship-pack-desired;
+  const sold=Number(document.getElementById("soldCount").value||0);
+  const low=Number(document.getElementById("lowSale").value||0), high=Number(document.getElementById("highSale").value||0);
+  document.getElementById("calc").innerHTML=`
+  <div class="stats">
+    <div class="stat">Sold / 30d<b>${sold}</b></div>
+    <div class="stat">Expected sale<b>${money(sale)}</b></div>
+    <div class="stat">Net profit<b class="${profit<0?'negative':'profit'}">${money(profit)}</b></div>
+    <div class="stat">ROI<b class="${roi<0?'negative':'profit'}">${roi.toFixed(1)}%</b></div>
+  </div>
+  <table style="margin-top:10px"><tbody>
+    <tr><td>Sale price</td><td>${money(sale)}</td></tr>
+    <tr><td>Estimated eBay fees</td><td>-${money(fees)}</td></tr>
+    <tr><td>Shipping paid by you</td><td>-${money(ship)}</td></tr>
+    <tr><td>Packaging</td><td>-${money(pack)}</td></tr>
+    <tr><td>Effective yard cost</td><td>-${money(selected.price)}</td></tr>
+    <tr><th>Estimated net profit</th><th class="${profit<0?'negative':'profit'}">${money(profit)}</th></tr>
+  </tbody></table>
+  <div class="${maxBuy>=selected.price?'info':'note'}" style="margin-top:10px">
+    <b>Maximum yard price for ${money(desired)} desired profit:</b> ${money(maxBuy)}
+    ${maxBuy>=selected.price?' — this price meets your target.':' — the listed yard price is above this target.'}
+  </div>
+  <p class="muted">Sold range entered: ${money(low)}–${money(high)}. These figures are only as good as the Product Research search and filters used.</p>`;
+}
+function selectedCost(){return selected?selected.price:0}
+function saveResearch(){
+  const key="vpf_research"; let arr=JSON.parse(localStorage.getItem(key)||"[]");
+  arr.unshift({date:new Date().toISOString(),vehicle,part:selected.name,yard:selected.price,core:selected.core,sold:document.getElementById("soldCount").value,avg:document.getElementById("avgSale").value,median:document.getElementById("medianSale").value});
+  localStorage.setItem(key,JSON.stringify(arr.slice(0,100))); alert("Saved locally.");
+}
+function openEbay(q){
+  // Product Research is behind eBay login; this opens eBay's research entry point.
+  window.open("https://www.ebay.com/sh/research?keyword="+q,"_blank");
+}
+function copyQuery(){navigator.clipboard?.writeText(document.getElementById("ebayQ").value);alert("Query copied.");}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+renderParts();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+{
+  "source": "Carolina Pick-N-Pull",
+  "source_url": "https://carolinapicknpull.com/price-list/?sort=all",
+  "parts": [
+    {
+      "name": "A/C BLEND DOOR ACTUATOR",
+      "price": 15.99,
+      "core": 0
+    },
+    {
+      "name": "A/C CLUTCH",
+      "price": 19.99,
+      "core": 0.99
+    },
+    {
+      "name": "A/C COMPRESSOR",
+      "price": 49.99,
+      "core": 9.99
+    },
+    {
+      "name": "A/C CONDENSER W/DRIER",
+      "price": 42.99,
+      "core": 7.99
+    },
+    {
+      "name": "A/C CONDENSOR",
+      "price": 32.99,
+      "core": 6.99
+    },
+    {
+      "name": "A/C CONDENSOR W/OIL COOLER",
+      "price": 39.99,
+      "core": 6.99
+    },
+    {
+      "name": "A/C DRIER",
+      "price": 14.99,
+      "core": 2.99
+    },
+    {
+      "name": "A/C EVAPORATOR",
+      "price": 25.99,
+      "core": 5.99
+    },
+    {
+      "name": "A/C EXPANSION VALVE",
+      "price": 11.99,
+      "core": 0
+    },
+    {
+      "name": "A/C HEATER AIR DUCT (EACH)",
+      "price": 3.99,
+      "core": 0
+    },
+    {
+      "name": "A/C HEATER CONTROL PANEL (DIGITAL OR ELECTRIC)",
+      "price": 24.99,
+      "core": 1
+    },
+    {
+      "name": "A/C HEATER CONTROL VALVE/SOLENOID",
+      "price": 11.99,
+      "core": 0
+    },
+    {
+      "name": "A/C HEATER HOSE",
+      "price": 2.99,
+      "core": 0
+    },
+    {
+      "name": "A/C HEATER HOUSING",
+      "price": 19,
+      "core": 0
+    },
+    {
+      "name": "A/C HOSE DOUBLE",
+      "price": 13.99,
+      "core": 0
+    },
+    {
+      "name": "A/C HOSE DUAL ZONE",
+      "price": 28.99,
+      "core": 0
+    },
+    {
+      "name": "A/C HOSE SINGLE",
+      "price": 7.99,
+      "core": 0
+    },
+    {
+      "name": "ACTUATOR BLOWER MOTOR",
+      "price": 19.99,
+      "core": 0
+    },
+    {
+      "name": "ADMISSION",
+      "price": 2,
+      "core": 0
+    },
+    {
+      "name": "AIR BAG COVER (DRIVERS SIDE)",
+      "price": 22.99,
+      "core": 0
+    },
+    {
+      "name": "AIR BAG COVER (PASSENGER SIDE)",
+      "price": 9.99,
+      "core": 0
+    },
+    {
+      "name": "AIR BAG SIDE CURTAIN (AS IS)",
+      "price": 64.99,
+      "core": 0
+    },
+    {
+      "name": "AIR BAG STEERING WHEEL/DASH (AS IS)",
+      "price": 54.99,
+      "core": 0
+    },
+    {
+      "name": "AIR BOX W/DUCT ASSEMBLY",
+      "price": 26.99,
+      "core": 0
+    },
+    {
+      "name": "AIR CLEANER",
+      "price": 10.5,
+      "core": 0
+    },
+    {
+      "name": "AIR CLEANER BOTTOM",
+      "price": 15.99,
+      "core": 0
+    },
+    {
+      "name": "AIR CLEANER BOTTOM (TOP AND BOTTOM)",
+      "price": 21.99,
+      "core": 0
+    },
+    {
+      "name": "AIR CLEANER TOP / COVER",
+      "price": 6.99,
+      "core": 0
+    },
+    {
+      "name": "AIR COMPRESSOR (AIR SUSPENSION)",
+      "price": 39.99,
+      "core": 2.99
+    },
+    {
+      "name": "AIR FILTER",
+      "price": 2.99,
+      "core": 0
+    },
+    {
+      "name": "AIR FILTER INDICATOR",
+      "price": 5.99,
+      "core": 0
+    },
+    {
+      "name": "AIR INTAKE BOX (BARE)",
+      "price": 19.99,
+      "core": 0
+    },
+    {
+      "name": "AIR INTAKE DUCT",
+      "price": 9.99,
+      "core": 0
+    },
+    {
+      "name": "AIR INTAKE HOSE/TUBE",
+      "price": 9.99,
+      "core": 0
+    },
+    {
+      "name": "AIR INTAKE SILENCER",
+      "price": 7.99,
+      "core": 0
+    },
+    {
+      "name": "AIR INTAKE TUBE W / SILENCER",
+      "price": 15.99,
+      "core": 0
+    },
+    {
+      "name": "ALTERNATOR",
+      "price": 39.99,
+      "core": 10.99
+    },
+    {
+      "name": "ALTERNATOR W/DUAL PULLEY",
+      "price": 44.99,
+      "core": 10.99
+    },
+    {
+      "name": "ANTENNA (POWER)",
+      "price": 22.99,
+      "core": 2.99
+    },
+    {
+      "name": "ANTENNA (SCREW ON)",
+      "price": 2.99,
+      "core": 0
+    },
+    {
+      "name": "ARM REST",
+      "price": 7.99,
+      "core": 0
+    },
+    {
+      "name": "ASHTRAY",
+      "price": 3.99,
+      "core": 0
+    },
+    {
+      "name": "AUXILIARY WATER PUMP",
+      "price": 19.99,
+      "core": 0
+    },
+    {
+      "name": "AXLE ACTUATOR",
+      "price": 29.99,
+      "core": 0
+    },
+    {
+      "name": "AXLE ASSEMBLY CAR (BARE)",
+      "price": 99.99,
+      "core": 19.99
+    },
+    {
+      "name": "AXLE ASSEMBLY CAR (DRUM TO DRUM)",
+      "price": 129.99,
+      "core": 24.99
+    },
+    {
+      "name": "AXLE ASSEMBLY REAR END DISC BRAKE TYPE (COMPLETE)",
+      "price": 179.99,
+      "core": 34.99
+    },
+    {
+      "name": "AXLE ASSEMBLY TRUCK, VAN, SUV (BARE)",
+      "price": 199,
+      "core": 34.99
+    },
+    {
+      "name": "AXLE ASSEMBLY TRUCK, VAN, SUV (DRUM TO DRUM)",
+      "price": 249.99,
+      "core": 34.99
+    },
+    {
+      "name": "AXLE BEAM ASSEMBLY (BARE)",
+      "price": 79.99,
+      "core": 14.99
+    },
+    {
+      "name": "AXLE BEAM ASSEMBLY (DRUM TO DRUM)",
+      "price": 89.99,
+      "core": 14.99
+    },
+    {
+      "name": "AXLE CARRIER ASSEMBLY",
+      "price": 79.99,
+      "core": 9.99
+    },
+    {
+      "name": "AXLE CV TYPE",
+      "price": 32.99,
+      "core": 5.99
+    },
+    {
+      "name": "AXLE CV TYPE W/INTERMEDIATE SHAFT",
+      "price": 42.99,
+      "core": 5.99
+    },
+    {
+      "name": "AXLE CV W/SPINDLE",
+      "price": 54.99,
+      "core": 6.99
+    },
+    {
+      "name": "AXLE CV W/SPINDLE/HUB",
+      "price": 67.99,
+      "core": 6.99
+    },
+    {
+      "name": "AXLE CV W/SPINDLE/HUB/ROTOR",
+      "price": 77.99,
+      "core": 7.99
+    },
+    {
+      "name": "AXLE CV W/SPINDLE/HUB/ROTOT/CALIPER",
+      "price": 84.99,
+      "core": 9.99
+    },
+    {
+      "name": "AXLE HOUSING (BARE)",
+      "price": 69.99,
+      "core": 9.99
+    },
+    {
+      "name": "AXLE INTERMEDIATE SHAFT",
+      "price": 15.99,
+      "core": 1.99
+    },
+    {
+      "name": "AXLE LIMITED-SLIP DIFFERENTIAL W/RING GEAR",
+      "price": 119.99,
+      "core": 9.99
+    },
+    {
+      "name": "AXLE REAR END COVER",
+      "price": 11.99,
+      "core": 0
+    },
+    {
+      "name": "AXLE REAR END PINION GEAR",
+      "price": 47.99,
+      "core": 3.99
+    },
+    {
+      "name": "AXLE REAR END RING GEAR",
+      "price": 44.99,
+      "core": 4.99
+    },
+    {
+      "name": "AXLE REAR END SPIDER GEAR (EACH)",
+      "price": 19.99,
+      "core": 3.99
+    },
+    {
+      "name": "AXLE REAR MAIN SEAL COVER",
+      "price": 19.99,
+      "core": 1.99
+    }
+  ]
+}

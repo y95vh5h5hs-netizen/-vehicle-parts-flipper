@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
 <title>Vehicle Parts Flipper — V1</title>
 <style>
 :root{--bg:#f5f7fb;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--good:#047857;--warn:#b45309;--bad:#b91c1c}
@@ -30,23 +28,20 @@ footer{max-width:980px;margin:auto;padding:10px 14px 40px;color:var(--muted);fon
 <header>
   <h1>🚗 Vehicle Parts Flipper</h1>
   <p>Version 1 • Free eBay Product Research workflow + profit calculator</p>
-<div class="row" style="margin-top:10px">
-    <button class="secondary" onclick="window.open('https://carolinapicknpull.com/price-list/','_blank')">Carolina Price List</button>
-    <button class="secondary" onclick="window.open('https://www.ebay.com/sh/research','_blank')">eBay Product Research</button>
-  </div>
 </header>
 
 <main>
 <section class="card">
   <div class="between"><h2>1. Vehicle</h2><span class="pill">Saved locally</span></div>
   <div class="grid3">
-    <div><label>Year</label><input id="year" inputmode="numeric" placeholder="1979"></div>
-    <div><label>Make</label><input id="make" placeholder="Ford"></div>
-    <div><label>Model</label><input id="model" placeholder="F-150"></div>
+    <div><label>Year</label><select id="year"><option value="">Select year</option></select></div>
+    <div><label>Make</label><input id="make" list="makeList" autocomplete="off" placeholder="Start typing: Ford"><datalist id="makeList"></datalist></div>
+    <div><label>Model</label><input id="model" list="modelList" autocomplete="off" placeholder="Start typing: F-150"><datalist id="modelList"></datalist></div>
     <div><label>Trim / Edition</label><input id="trim" placeholder="Ranger XLT"></div>
     <div><label>Engine</label><input id="engine" placeholder="351M V8"></div>
     <div><label>Body / Drive</label><input id="body" placeholder="Regular Cab • 4WD"></div>
   </div>
+  <div id="vehicleStatus" class="small muted" style="margin-top:8px"></div>
   <div class="row" style="margin-top:10px">
     <button class="primary" onclick="saveVehicle()">Save vehicle</button>
     <button class="secondary" onclick="clearVehicle()">Clear</button>
@@ -63,6 +58,7 @@ footer{max-width:980px;margin:auto;padding:10px 14px 40px;color:var(--muted);fon
     <div><label>Search parts</label><input id="partSearch" oninput="renderParts()" placeholder="grille, alternator, cluster..."></div>
     <div><label>Minimum estimated profit</label><input id="minProfit" type="number" value="0" oninput="renderParts()"></div>
   </div>
+  <div id="partsStatus" class="small muted" style="margin-top:8px">Loading Carolina Pick-N-Pull price list…</div>
   <div id="partsTable" style="margin-top:12px"></div>
 </section>
 
@@ -100,7 +96,7 @@ footer{max-width:980px;margin:auto;padding:10px 14px 40px;color:var(--muted);fon
 </footer>
 
 <script>
-const PRICE_DATA = [
+let PRICE_DATA = [
 ["A/C BLEND DOOR ACTUATOR",15.99,0],["A/C CLUTCH",19.99,.99],["A/C COMPRESSOR",49.99,9.99],
 ["A/C CONDENSER W/DRIER",42.99,7.99],["A/C DRIER",14.99,2.99],["A/C EVAPORATOR",25.99,5.99],
 ["A/C EXPANSION VALVE",11.99,0],["A/C HEATER CONTROL PANEL (DIGITAL OR ELECTRIC)",24.99,1],
@@ -125,6 +121,26 @@ const PRICE_DATA = [
 
 let selected=null;
 let customParts=JSON.parse(localStorage.getItem("vpf_custom_parts")||"[]");
+
+let priceDataLoaded=false;
+async function loadCarolinaParts(){
+  try{
+    const r=await fetch("parts.json?ts="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error("parts.json not found");
+    const d=await r.json();
+    if(Array.isArray(d.parts) && d.parts.length>=100){
+      PRICE_DATA=d.parts.map(x=>({name:String(x.name),price:Number(x.price)||0,core:Number(x.core)||0}));
+      priceDataLoaded=true;
+      const st=document.getElementById("partsStatus");
+      if(st){st.textContent=`Loaded ${PRICE_DATA.length} Carolina Pick-N-Pull parts from the All list.`;st.className="small"; }
+      renderParts();
+    }
+  }catch(e){
+    const st=document.getElementById("partsStatus");
+    if(st){st.textContent="Using the built-in A-section until the GitHub price-list update workflow has run.";st.className="small warning";}
+  }
+}
+
 let vehicle=JSON.parse(localStorage.getItem("vpf_vehicle")||"{}");
 Object.entries(vehicle).forEach(([k,v])=>{let e=document.getElementById(k);if(e)e.value=v});
 
@@ -135,6 +151,87 @@ function saveVehicle(){
 }
 function clearVehicle(){localStorage.removeItem("vpf_vehicle"); location.reload()}
 function allParts(){return [...PRICE_DATA,...customParts]}
+
+/* Cascading vehicle search: Year -> Make -> Model. NHTSA vPIC supplies the suggestions. */
+const VPIC_BASE="https://vpic.nhtsa.dot.gov/api/vehicles";
+async function vpicJSON(url){
+  const r=await fetch(url);
+  if(!r.ok) throw new Error("Vehicle lookup failed");
+  return r.json();
+}
+function initVehicleYears(){
+  const el=document.getElementById("year");
+  if(!el) return;
+  const current=new Date().getFullYear();
+  for(let y=current;y>=1940;y--){
+    const o=document.createElement("option");
+    o.value=String(y); o.textContent=String(y); el.appendChild(o);
+  }
+  if(vehicle.year) el.value=vehicle.year;
+}
+async function loadMakes(){
+  const dl=document.getElementById("makeList");
+  if(!dl) return;
+  let makes=[];
+  try{makes=JSON.parse(localStorage.getItem("vpf_makes")||"[]")}catch(e){}
+  if(!makes.length){
+    try{
+      const d=await vpicJSON(VPIC_BASE+"/GetAllMakes?format=json");
+      makes=[...new Set((d.Results||[]).map(x=>x.Make_Name).filter(Boolean))].sort();
+      localStorage.setItem("vpf_makes",JSON.stringify(makes));
+    }catch(e){
+      makes=["Acura","Audi","BMW","Chevrolet","Chrysler","Dodge","Ford","GMC","Honda","Hyundai","Jeep","Kia","Lexus","Mazda","Mercedes-Benz","Mitsubishi","Nissan","Pontiac","Ram","Subaru","Toyota","Volkswagen","Volvo"];
+    }
+  }
+  dl.innerHTML=makes.map(x=>`<option value="${esc(x)}"></option>`).join("");
+}
+async function loadModels(){
+  const y=document.getElementById("year")?.value;
+  const make=document.getElementById("make")?.value.trim();
+  const dl=document.getElementById("modelList");
+  if(!dl) return;
+  dl.innerHTML="";
+  if(!y || !make) return;
+  if(Number(y)<1996){
+    document.getElementById("vehicleStatus").textContent="For vehicles before 1996, enter the model manually; the national vehicle API does not provide the same year-specific model lookup.";
+    return;
+  }
+  const key="vpf_models_"+y+"_"+make.toLowerCase();
+  let models=[];
+  try{models=JSON.parse(localStorage.getItem(key)||"[]")}catch(e){}
+  try{
+    if(!models.length){
+      const d=await vpicJSON(VPIC_BASE+"/GetModelsForMakeYear/make/"+encodeURIComponent(make)+"/modelyear/"+encodeURIComponent(y)+"?format=json");
+      models=[...new Set((d.Results||[]).map(x=>x.Model_Name).filter(Boolean))].sort();
+      localStorage.setItem(key,JSON.stringify(models));
+    }
+    dl.innerHTML=models.map(x=>`<option value="${esc(x)}"></option>`).join("");
+    document.getElementById("vehicleStatus").textContent=`${models.length} model suggestions for ${y} ${make}. Start typing to filter them.`;
+  }catch(e){
+    document.getElementById("vehicleStatus").textContent="Model suggestions could not be loaded. You can still type the model manually.";
+  }
+}
+function setupVehicleSearch(){
+  initVehicleYears();
+  loadMakes();
+  const y=document.getElementById("year"), m=document.getElementById("make");
+  if(y) y.addEventListener("change",()=>{saveVehicleDraft();loadModels();});
+  if(m) m.addEventListener("input",()=>{saveVehicleDraft();loadModels();});
+  ["model","trim","engine","body"].forEach(id=>document.getElementById(id)?.addEventListener("input",saveVehicleDraft));
+  if(vehicle.make) document.getElementById("make").value=vehicle.make;
+  if(vehicle.model) document.getElementById("model").value=vehicle.model;
+  if(vehicle.trim) document.getElementById("trim").value=vehicle.trim;
+  if(vehicle.engine) document.getElementById("engine").value=vehicle.engine;
+  if(vehicle.body) document.getElementById("body").value=vehicle.body;
+  if(vehicle.year){ y.value=vehicle.year; loadModels(); }
+}
+function saveVehicleDraft(){
+  ["year","make","model","trim","engine","body"].forEach(k=>{
+    const e=document.getElementById(k); if(e) vehicle[k]=e.value.trim();
+  });
+  localStorage.setItem("vpf_vehicle",JSON.stringify(vehicle));
+}
+
 function renderParts(){
   const q=document.getElementById("partSearch").value.toLowerCase(), min=Number(document.getElementById("minProfit").value||0);
   const arr=allParts().filter(p=>p.name.toLowerCase().includes(q));
@@ -165,7 +262,7 @@ function analyze(p){
     </div></div>
     <div><h3>eBay Product Research</h3>
       <p class="muted">Suggested query:</p><input id="ebayQ" value="${esc(ebayQuery(p))}">
-      <div class="row" style="margin-top:8px"><button class="primary" onclick="openEbay('${q}')">Research on eBay</button><button class="secondary" onclick="copyQuery()">Copy query</button></div>
+      <div class="row" style="margin-top:8px"><a class="button primary" href="https://www.ebay.com/sh/research?keyword=${q}" target="_blank" rel="noopener">Research on eBay</a><button class="secondary" onclick="copyQuery()">Copy query</button></div>
     </div>
   </div>
   <h3>Enter the last-30-day Product Research results</h3>
@@ -225,17 +322,14 @@ function saveResearch(){
   localStorage.setItem(key,JSON.stringify(arr.slice(0,100))); alert("Saved locally.");
 }
 function openEbay(q){
-  // Product Research is behind eBay login; this opens eBay's research entry point.
-  window.open("https://www.ebay.com/sh/research?keyword="+q,"_blank");
+  // Use normal navigation so Firefox/iPhone popup blocking cannot prevent the action.
+  window.location.href = "https://www.ebay.com/sh/research?keyword="+q;
 }
 function copyQuery(){navigator.clipboard?.writeText(document.getElementById("ebayQ").value);alert("Query copied.");}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+setupVehicleSearch();
 renderParts();
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
-}
+loadCarolinaParts();
 </script>
 </body>
 </html>
